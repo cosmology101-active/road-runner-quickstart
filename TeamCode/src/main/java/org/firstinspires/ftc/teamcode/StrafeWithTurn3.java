@@ -1,93 +1,50 @@
-package org.firstinspires.ftc.teamcode;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+// Assuming you have your drive class initialized as 'drive'
+// and you're starting from pose (0, 0, 0)
 
-// Replace with your actual MecanumDrive class import
-// This should match your RoadRunner 1.0.1 drive class
-import org.firstinspires.ftc.teamcode.MecanumDrive;
+public void StrafeWithTurn3() {
+    // Starting pose (assuming robot starts at origin facing forward)
+    Pose2d startPose = new Pose2d(0, 0, 0);
+    drive.setPoseEstimate(startPose);
+    
+    // Build trajectory: Move 80 inches from right to left (negative X direction)
+    // then turn 90 degrees right and move forward 20 inches
+    Trajectory trajectory = drive.trajectoryBuilder(startPose)
+            .strafeLeft(80)  // Move 80 inches to the left (from robot's perspective)
+            .build();
+    
+    // Execute the strafe movement
+    drive.followTrajectory(trajectory);
+    
+    // Get the current pose after the strafe
+    Pose2d currentPose = drive.getPoseEstimate();
+    
+    // Turn 90 degrees to the right (clockwise)
+    drive.turn(Math.toRadians(-90));
+    
+    // Update pose estimate after turn
+    currentPose = drive.getPoseEstimate();
+    
+    // Move forward 20 inches
+    Trajectory forwardTrajectory = drive.trajectoryBuilder(currentPose)
+            .forward(20)
+            .build();
+    
+    drive.followTrajectory(forwardTrajectory);
+}
 
-@Config
-@Autonomous(group = "Official")
-public class StrafeWithTurn3 extends LinearOpMode {
-
-    // Dashboard Variables for the movement sequence
-    // Field is 140" x 140" with center at (0,0), so coordinates range from -70 to +70
-    // Robot chassis is 15", so robot center must stay 7.5" from field edges
-    public static double START_X = 40;              // Starting position X
-    public static double START_Y = 0;               // Starting position Y
-    public static double STRAIGHT_DISTANCE = 80;   // Distance to travel straight (right to left)
-    public static double FORWARD_DISTANCE = 20;    // Distance to go forward after turn
-    public static double TURN_ANGLE = 90;          // Turn angle in degrees (positive = counterclockwise)
-
-    // Calculated positions
-    // Note: These will update automatically on the FTC Dashboard when you change the START_X and STRAIGHT_DISTANCE values.
-    public static double END_STRAIGHT_X = START_X - STRAIGHT_DISTANCE;  // End of straight movement
-    public static double FINAL_X = END_STRAIGHT_X;                      // Final X (no change during forward)
-    public static double FINAL_Y = START_Y + FORWARD_DISTANCE;          // Final Y after forward movement
-
-    // Pose definitions using RoadRunner 1.0.1 Pose2d
-    public static Pose2d STARTING_POSE = new Pose2d(START_X, START_Y, Math.toRadians(180)); // Face left (180°)
-
-    private MecanumDrive drive;
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-
-        // Initialize the drive chassis with starting pose
-        drive = new MecanumDrive(hardwareMap, STARTING_POSE);
-
-        // Create a single Action sequence for smooth, coordinated movement
-        Action movementSequence = drive.actionBuilder(STARTING_POSE)
-                // Step 1: Go straight from right to left (80 inches)
-                .splineToLinearHeading(new Pose2d(END_STRAIGHT_X, START_Y, Math.toRadians(180)), Math.toRadians(180))
-
-                // Step 2: Turn 90 degrees right (from 180° to 270°)
-                // Note: The turn angle is from the current heading, so a +90 turn on a 180° heading results in a 270° heading.
-                .turn(Math.toRadians(TURN_ANGLE))
-
-                // Step 3: Go forward 20 inches (in the new direction)
-                .lineToY(START_Y + FORWARD_DISTANCE)
-
-                .build();
-
-        // Display initialization telemetry
-        telemetry.addLine("READY - 80\" straight + 90° turn + 20\" forward");
-        telemetry.addLine("────────────────────────────────");
-        telemetry.addData("Start Position", "X: " + START_X + ", Y: " + START_Y + ", θ: 180°");
-        telemetry.addData("After Straight", "X: " + END_STRAIGHT_X + ", Y: " + START_Y + ", θ: 180°");
-        telemetry.addData("After Turn", "X: " + END_STRAIGHT_X + ", Y: " + START_Y + ", θ: 270°");
-        telemetry.addData("Final Position", "X: " + FINAL_X + ", Y: " + FINAL_Y + ", θ: 270°");
-        telemetry.addLine("────────────────────────────────");
-        telemetry.addData("Straight Distance", STRAIGHT_DISTANCE + " inches");
-        telemetry.addData("Turn Angle", TURN_ANGLE + "° right");
-        telemetry.addData("Forward Distance", FORWARD_DISTANCE + " inches");
-        telemetry.addData("Robot Chassis", "15\" (7.5\" from center to edge)");
-        telemetry.update();
-
-        waitForStart();
-
-        if (isStopRequested()) {
-            return;
-        }
-
-        // Execute the complete movement sequence
-        telemetry.addLine("Starting movement sequence...");
-        telemetry.addData("Step 1", "Going straight " + STRAIGHT_DISTANCE + " inches");
-        telemetry.update();
-
-        Actions.runBlocking(movementSequence);
-
-        // Show completion status
-        telemetry.addLine("All movements complete!");
-        telemetry.addData("Expected Final", "X: " + FINAL_X + ", Y: " + FINAL_Y + ", θ: " + (180 + TURN_ANGLE) + "°");
-        telemetry.update();
-
-        // Keep the robot active for a bit to see final position
-        sleep(2000);
-    }
+// Alternative approach using a single trajectory with spline paths:
+public void executeMovementSingleTrajectory() {
+    Pose2d startPose = new Pose2d(0, 0, 0);
+    drive.setPoseEstimate(startPose);
+    
+    Trajectory trajectory = drive.trajectoryBuilder(startPose)
+            .strafeLeft(80)
+            .splineToConstantHeading(new Vector2d(-80, 20), Math.toRadians(-90))
+            .build();
+    
+    drive.followTrajectory(trajectory);
 }
