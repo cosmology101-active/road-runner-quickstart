@@ -5,17 +5,17 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.teamcode.drive.MecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.ChampionMecanumDrive;
 
 @Autonomous(name = "StrafeWithTurn3", group = "Autonomous")
 public class StrafeWithTurn3 extends LinearOpMode {
     
-    private MecanumDrive drive;
+    private ChampionMecanumDrive drive;
     
     @Override
     public void runOpMode() {
-        // Initialize your MecanumDrive
-        drive = new MecanumDrive(hardwareMap);
+        // Initialize your ChampionMecanumDrive
+        drive = new ChampionMecanumDrive(hardwareMap);
         
         // Set starting pose
         Pose2d startPose = new Pose2d(0, 0, 0);
