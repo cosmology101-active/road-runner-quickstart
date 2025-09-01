@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.champion.autonomous;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
@@ -7,7 +7,9 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.champion.road.runner.drive.ChampionMecanumDrive;
+// Replace with your actual MecanumDrive class import
+// This should match your RoadRunner 1.0.1 drive class
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
 @Autonomous(group = "Official")
@@ -31,13 +33,13 @@ public class StrafeWithTurn3 extends LinearOpMode {
     // Pose definitions using RoadRunner 1.0.1 Pose2d
     public static Pose2d STARTING_POSE = new Pose2d(START_X, START_Y, Math.toRadians(180)); // Face left (180°)
 
-    private ChampionMecanumDrive drive;
+    private MecanumDrive drive;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         // Initialize the drive chassis with starting pose
-        drive = new ChampionMecanumDrive(hardwareMap, STARTING_POSE);
+        drive = new MecanumDrive(hardwareMap, STARTING_POSE);
 
         // Create a single Action sequence for smooth, coordinated movement
         Action movementSequence = drive.actionBuilder(STARTING_POSE)
