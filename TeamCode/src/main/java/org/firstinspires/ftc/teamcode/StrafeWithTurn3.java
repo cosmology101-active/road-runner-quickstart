@@ -1,66 +1,70 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+// Import your drive class - replace with your actual drive class name
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Autonomous(name = "StrafeWithTurn3", group = "Autonomous")
 public class StrafeWithTurn3 extends LinearOpMode {
     
     @Override
     public void runOpMode() {
-        // Initialize your MecanumDrive (replace with your actual drive class)
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        // Initialize your drive class (replace SampleMecanumDrive with your actual class)
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         
-        // Build the action sequence
-        Action trajectoryAction = drive.actionBuilder(drive.pose)
-                .strafeToLinearHeading(new Vector2d(-80, 0), 0) // Move 80 inches left
-                .turn(Math.toRadians(-90))                      // Turn 90 degrees right
-                .lineToY(20)                                    // Move forward 20 inches
+        // Starting pose (assuming robot starts at origin facing forward)
+        Pose2d startPose = new Pose2d(0, 0, 0);
+        drive.setPoseEstimate(startPose);
+        
+        waitForStart();
+        
+        if (opModeIsActive()) {
+            executeMovement(drive);
+        }
+    }
+    
+    public void executeMovement(SampleMecanumDrive drive) {
+        // Build trajectory: Move 80 inches from right to left (negative X direction)
+        // then turn 90 degrees right and move forward 20 inches
+        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d(0, 0, 0))
+                .strafeLeft(80)  // Move 80 inches to the left (from robot's perspective)
                 .build();
         
-        waitForStart();
+        // Execute the strafe movement
+        drive.followTrajectory(trajectory);
         
-        if (opModeIsActive()) {
-            // Execute the action sequence
-            Actions.runBlocking(trajectoryAction);
-        }
+        // Get the current pose after the strafe
+        Pose2d currentPose = drive.getPoseEstimate();
+        
+        // Turn 90 degrees to the right (clockwise)
+        drive.turn(Math.toRadians(-90));
+        
+        // Update pose estimate after turn
+        currentPose = drive.getPoseEstimate();
+        
+        // Move forward 20 inches
+        Trajectory forwardTrajectory = drive.trajectoryBuilder(currentPose)
+                .forward(20)
+                .build();
+        
+        drive.followTrajectory(forwardTrajectory);
     }
-}
-
-// Alternative approach with separate actions for more control:
-/*
-@Autonomous(name = "StrafeWithTurn3Alt", group = "Autonomous")
-public class StrafeWithTurn3Alt extends LinearOpMode {
     
-    @Override
-    public void runOpMode() {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+    // Alternative approach using a single trajectory with spline paths:
+    public void executeMovementSingleTrajectory(SampleMecanumDrive drive) {
+        Pose2d startPose = new Pose2d(0, 0, 0);
+        drive.setPoseEstimate(startPose);
         
-        waitForStart();
+        Trajectory trajectory = drive.trajectoryBuilder(startPose)
+                .strafeLeft(80)
+                .splineToConstantHeading(new Vector2d(-80, 20), Math.toRadians(-90))
+                .build();
         
-        if (opModeIsActive()) {
-            // Action 1: Strafe left 80 inches
-            Action strafeAction = drive.actionBuilder(drive.pose)
-                    .strafeToLinearHeading(new Vector2d(-80, 0), 0)
-                    .build();
-            Actions.runBlocking(strafeAction);
-            
-            // Action 2: Turn 90 degrees right
-            Action turnAction = drive.actionBuilder(drive.pose)
-                    .turn(Math.toRadians(-90))
-                    .build();
-            Actions.runBlocking(turnAction);
-            
-            // Action 3: Move forward 20 inches
-            Action forwardAction = drive.actionBuilder(drive.pose)
-                    .lineToY(drive.pose.position.y + 20)
-                    .build();
-            Actions.runBlocking(forwardAction);
-        }
+        drive.followTrajectory(trajectory);
     }
 }
-*/
