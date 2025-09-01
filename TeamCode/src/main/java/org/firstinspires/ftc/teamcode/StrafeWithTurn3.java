@@ -1,70 +1,89 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-// Import your drive class - replace with your actual drive class name
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @Autonomous(name = "StrafeWithTurn3", group = "Autonomous")
 public class StrafeWithTurn3 extends LinearOpMode {
     
+    // You need to replace this with your actual RoadRunner drive class
+    // Common names: MecanumDrive, SampleMecanumDrive, or whatever you named it
+    private Object drive; // Replace 'Object' with your actual drive class
+    
     @Override
     public void runOpMode() {
-        // Initialize your drive class (replace SampleMecanumDrive with your actual class)
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        // Initialize your drive system
+        // Uncomment and modify this line based on your actual drive class:
+        // drive = new YourDriveClassName(hardwareMap, new Pose2d(0, 0, 0));
         
-        // Starting pose (assuming robot starts at origin facing forward)
-        Pose2d startPose = new Pose2d(0, 0, 0);
-        drive.setPoseEstimate(startPose);
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
         
         waitForStart();
         
         if (opModeIsActive()) {
-            executeMovement(drive);
+            executeMovement();
+            
+            telemetry.addData("Status", "Movement Complete");
+            telemetry.update();
         }
     }
     
-    public void executeMovement(SampleMecanumDrive drive) {
-        // Build trajectory: Move 80 inches from right to left (negative X direction)
-        // then turn 90 degrees right and move forward 20 inches
-        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d(0, 0, 0))
-                .strafeLeft(80)  // Move 80 inches to the left (from robot's perspective)
-                .build();
+    public void executeMovement() {
+        // PLACEHOLDER CODE - Replace with your RoadRunner implementation
+        // This is a template showing the movement sequence you want:
         
-        // Execute the strafe movement
-        drive.followTrajectory(trajectory);
+        telemetry.addData("Step 1", "Strafing left 80 inches");
+        telemetry.update();
+        // TODO: Add your RoadRunner strafe left command here
+        sleep(3000); // Placeholder delay
         
-        // Get the current pose after the strafe
-        Pose2d currentPose = drive.getPoseEstimate();
+        telemetry.addData("Step 2", "Turning right 90 degrees");
+        telemetry.update();
+        // TODO: Add your RoadRunner turn right command here
+        sleep(2000); // Placeholder delay
         
-        // Turn 90 degrees to the right (clockwise)
-        drive.turn(Math.toRadians(-90));
-        
-        // Update pose estimate after turn
-        currentPose = drive.getPoseEstimate();
-        
-        // Move forward 20 inches
-        Trajectory forwardTrajectory = drive.trajectoryBuilder(currentPose)
-                .forward(20)
-                .build();
-        
-        drive.followTrajectory(forwardTrajectory);
-    }
-    
-    // Alternative approach using a single trajectory with spline paths:
-    public void executeMovementSingleTrajectory(SampleMecanumDrive drive) {
-        Pose2d startPose = new Pose2d(0, 0, 0);
-        drive.setPoseEstimate(startPose);
-        
-        Trajectory trajectory = drive.trajectoryBuilder(startPose)
-                .strafeLeft(80)
-                .splineToConstantHeading(new Vector2d(-80, 20), Math.toRadians(-90))
-                .build();
-        
-        drive.followTrajectory(trajectory);
+        telemetry.addData("Step 3", "Moving forward 20 inches");
+        telemetry.update();
+        // TODO: Add your RoadRunner move forward command here
+        sleep(2000); // Placeholder delay
     }
 }
+
+/* 
+TO FIX THIS CODE, YOU NEED TO:
+
+1. First, make sure RoadRunner 1.0.1 is properly installed in your project.
+   Check your build.gradle files for the RoadRunner dependency.
+
+2. Find your drive class file (usually in TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/)
+   Common names: MecanumDrive.java, SampleMecanumDrive.java, etc.
+
+3. Replace the 'Object drive;' declaration with your actual drive class, for example:
+   private MecanumDrive drive;
+
+4. Replace the commented initialization line with:
+   drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+5. Replace the TODO sections with actual RoadRunner commands, for example:
+   
+   // Strafe left 80 inches:
+   Trajectory strafeTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
+           .strafeLeft(80)
+           .build();
+   drive.followTrajectory(strafeTrajectory);
+   
+   // Turn right 90 degrees:
+   drive.turn(Math.toRadians(-90));
+   
+   // Move forward 20 inches:
+   Trajectory forwardTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
+           .forward(20)
+           .build();
+   drive.followTrajectory(forwardTrajectory);
+
+6. Make sure you have the proper imports based on your RoadRunner version:
+   import com.acmerobotics.roadrunner.geometry.Pose2d;
+   import com.acmerobotics.roadrunner.trajectory.Trajectory;
+   import org.firstinspires.ftc.teamcode.drive.YourDriveClassName;
+*/
